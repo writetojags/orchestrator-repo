@@ -4,7 +4,7 @@ set -e
 SERVICE=$1
 COMMIT=$2
 
-echo "✅ Deploying $SERVICE with commit $COMMIT"
+echo "✅ Starting deploy-prod.sh for $SERVICE with commit $COMMIT"
 
 # --- Push to Heroku for all AZs ---
 for AZ in az1 az2 az3
@@ -16,11 +16,11 @@ do
     echo "❌ ERROR: App name for $APP_NAME_VAR is not set!"
     exit 1
   fi
-  echo " Checking out $COMMIT ..."
-  echo "✅ Pushing to $APP_NAME master branch ..."
-  git push https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git HEAD:master
 
-  echo "⏳ Waiting for deploy to finish..."
+  echo "🚀 AZ=$AZ -> Pushing $SERVICE to Heroku app $APP_NAME at commit $COMMIT"
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" HEAD:master
+
+  echo "⏳ Waiting for deploy to finish for AZ=$AZ..."
   sleep 10
 done
 
@@ -35,7 +35,8 @@ do
     exit 1
   fi
 
-  echo "🔎 Running health check on $APP_NAME..."
+  echo "🔎 Running health check on $APP_NAME (AZ=$AZ)..."
+  echo "📍 Health check URL: https://${APP_NAME}.herokuapp.com/health"
   if ! curl -f "https://${APP_NAME}.herokuapp.com/health"; then
     echo "❌ Health check failed on $APP_NAME!"
     echo "⚠️ Rolling back all AZs for $SERVICE..."
@@ -72,3 +73,4 @@ echo "📝 Updating rollback log..."
 sed -i "s/^${SERVICE}=.*/${SERVICE}=${COMMIT}/" rollback/rollback.log
 
 echo "✅ Deployment complete."
+
