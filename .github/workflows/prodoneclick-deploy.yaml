@@ -8,77 +8,65 @@ on:
     inputs:
       RC_COMMIT:
         description: 'Release Candidate Commit SHA'
-        required: false
-        default: ''
+        required: true
+        default: 'main'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     env:
+      # Resolve RC_COMMIT: use input if given, else use current commit SHA
+      RC_COMMIT: ${{ github.event.inputs.RC_COMMIT != '' && github.event.inputs.RC_COMMIT || github.sha }}
+
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
-      
+
       EVENT_DRIVEN_APP_AZ1: ${{ secrets.EVENT_DRIVEN_APP_AZ1 }}
       EVENT_DRIVEN_APP_AZ2: ${{ secrets.EVENT_DRIVEN_APP_AZ2 }}
       EVENT_DRIVEN_APP_AZ3: ${{ secrets.EVENT_DRIVEN_APP_AZ3 }}
-      
+
       EVENT_SERVICE_APP_AZ1: ${{ secrets.EVENT_SERVICE_APP_AZ1 }}
       EVENT_SERVICE_APP_AZ2: ${{ secrets.EVENT_SERVICE_APP_AZ2 }}
       EVENT_SERVICE_APP_AZ3: ${{ secrets.EVENT_SERVICE_APP_AZ3 }}
-      
+
       TOLERANT_READER_APP_AZ1: ${{ secrets.TOLERANT_READER_APP_AZ1 }}
       TOLERANT_READER_APP_AZ2: ${{ secrets.TOLERANT_READER_APP_AZ2 }}
       TOLERANT_READER_APP_AZ3: ${{ secrets.TOLERANT_READER_APP_AZ3 }}
 
     steps:
-      - name: Checkout Orchestrator Repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+    - name: Checkout Orchestrator Repo
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
 
-      # Determine RC_COMMIT for this run
-      - name: Set RC_COMMIT
-        run: |
-          if [ -z "${{ github.event.inputs.RC_COMMIT }}" ]; then
-            echo "RC_COMMIT=${GITHUB_SHA}" >> $GITHUB_ENV
-          else
-            echo "RC_COMMIT=${{ github.event.inputs.RC_COMMIT }}" >> $GITHUB_ENV
-          fi
+    - name: Print ENV VARS
+      run: |
+        echo "RC_COMMIT = $RC_COMMIT"
+        echo "EVENT_DRIVEN_APP_AZ1 = $EVENT_DRIVEN_APP_AZ1"
+        echo "EVENT_DRIVEN_APP_AZ2 = $EVENT_DRIVEN_APP_AZ2"
+        echo "EVENT_DRIVEN_APP_AZ3 = $EVENT_DRIVEN_APP_AZ3"
+        echo "HEROKU_API_KEY = $HEROKU_API_KEY"
 
-      - name: Print ENV VARS
-        run: |
-          echo "RC_COMMIT = $RC_COMMIT"
-          echo "EVENT_DRIVEN_APP_AZ1 = $EVENT_DRIVEN_APP_AZ1"
-          echo "EVENT_DRIVEN_APP_AZ2 = $EVENT_DRIVEN_APP_AZ2"
-          echo "EVENT_DRIVEN_APP_AZ3 = $EVENT_DRIVEN_APP_AZ3"
-          echo "HEROKU_API_KEY = $HEROKU_API_KEY"
+    - name: Checkout Event Driven Repo
+      uses: actions/checkout@v3
+      with:
+        repository: writetojags/event-driven-repo
+        token: ${{ secrets.GITHUB_TOKEN }}
+        ref: ${{ env.RC_COMMIT }}
+        path: event-driven
 
-      # Checkout target service repo at RC_COMMIT
-      - name: Checkout Event Driven Repo
-        uses: actions/checkout@v3
-        with:
-          repository: writetojags/event-driven-repo
-          token: ${{ secrets.GITHUB_TOKEN }}
-          ref: $RC_COMMIT
-          path: event-driven
+    - name: Deploy Event Driven Service
+      working-directory: ./event-driven
+      run: |
+        git push https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git HEAD:master
 
-      - name: Deploy Event Driven Service
-        working-directory: ./event-driven
-        run: |
-          for AZ in 1 2 3; do
-            APP_NAME_VAR="EVENT_DRIVEN_APP_AZ${AZ}"
-            APP_NAME="${!APP_NAME_VAR}"
-            echo "Deploying $APP_NAME..."
-            git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" HEAD:master
-          done
+    - name: Deploy Event Service
+      run: |
+        bash .github/scripts/deploy-prod.sh event $RC_COMMIT \
+          "$EVENT_SERVICE_APP_AZ1" "$EVENT_SERVICE_APP_AZ2" "$EVENT_SERVICE_APP_AZ3"
 
-      # Deploy Event Service
-      - name: Deploy Event Service
-        run: |
-          bash .github/scripts/deploy-prod.sh event $RC_COMMIT
-
-      # Deploy Tolerant Reader Service
-      - name: Deploy Tolerant Reader Service
-        run: |
-          bash .github/scripts/deploy-prod.sh tolerant_reader $RC_COMMIT
+    - name: Deploy Tolerant Reader Service
+      run: |
+        bash .github/scripts/deploy-prod.sh tolerant_reader $RC_COMMIT \
+          "$TOLERANT_READER_APP_AZ1" "$TOLERANT_READER_APP_AZ2" "$TOLERANT_READER_APP_AZ3"
