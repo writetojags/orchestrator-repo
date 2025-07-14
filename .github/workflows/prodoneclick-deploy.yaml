@@ -1,6 +1,9 @@
 name: Production One Click Deploy
 
 on:
+  push:
+    bramches:
+      - main
   workflow_dispatch:
     inputs:
       RC_COMMIT:
