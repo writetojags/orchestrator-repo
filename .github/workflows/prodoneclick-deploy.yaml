@@ -34,9 +34,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-      repository: writetojags/event-driven-repo
-      ref: $RC_COMMIT
-      path: event-driven
+        repository: writetojags/event-driven-repo
+        ref: $RC_COMMIT
+        path: event-driven
         
         
     - name: Set RC_COMMIT
