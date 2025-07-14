@@ -3,6 +3,10 @@ set -e
 
 SERVICE=$1
 COMMIT=$2
+AZ1_APP=$3
+AZ2_APP=$4
+AZ3_APP=$5
+
 
 echo "✅ Deploying $SERVICE with commit $COMMIT"
 

@@ -46,7 +46,7 @@ jobs:
 
     - name: Deploy Event Driven Service
       run: |
-        bash .github/scripts/deploy-prod.sh event_driven ${{ github.event.inputs.RC_COMMIT }}
+        bash .github/scripts/deploy-prod.sh event_driven \ ${{ github.event.inputs.RC_COMMIT }} \ "$EVENT_DRIVEN_APP_AZ1" "$EVENT_DRIVEN_APP_AZ2" "$EVENT_DRIVEN_APP_AZ3"
 
     - name: Deploy Event Service
       run: |
