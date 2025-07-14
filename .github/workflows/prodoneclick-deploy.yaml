@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       RC_COMMIT:
-        description: 'Orchestrator Branch or Commit (default main)
+        description: 'Orchestrator Branch or Commit (default main)'
         required: true
         default: 'main'
       EVENT_DRIVEN_REF:
