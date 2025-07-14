@@ -71,7 +71,7 @@ jobs:
     - name: Determine Event Driven Ref
       run: |
        if [ -z "${{ github.event.inputs.EVENT_DRIVEN_REF }}" ]; then
-         echo "EVENT_DRIVEN_REF=devel-event-driven-rel" >> $GITHUB_ENV
+         echo "EVENT_DRIVEN_REF=master" >> $GITHUB_ENV
        else
          echo "EVENT_DRIVEN_REF=${{ github.event.inputs.EVENT_DRIVEN_REF }}" >> $GITHUB_ENV
         fi
