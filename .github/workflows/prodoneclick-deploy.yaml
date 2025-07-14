@@ -67,20 +67,23 @@ jobs:
         echo "TOLERANT_READER_APP_AZ3 = $TOLERANT_READER_APP_AZ3"
         echo "--- END ENV ---"
 
-    - name: ✅ Checkout Event Driven Repo
+    - name: Determine Event Driven Ref
+      run: |
+       if [ -z "${{ github.event.inputs.EVENT_DRIVEN_REF }}" ]; then
+         echo "EVENT_DRIVEN_REF=devel-event-driven-rel" >> $GITHUB_ENV
+       else
+         echo "EVENT_DRIVEN_REF=${{ github.event.inputs.EVENT_DRIVEN_REF }}" >> $GITHUB_ENV
+        fi
+
+    - name: Checkout Event Driven Repo
       uses: actions/checkout@v3
       with:
         repository: writetojags/event-driven-repo
         token: ${{ secrets.GITHUB_TOKEN }}
-        ref: ${{ github.event.inputs.EVENT_DRIVEN_REF }}
+        ref: ${{ env.EVENT_DRIVEN_REF }}
         path: event-driven
         fetch-depth: 0
 
-    - name: ✅ Print Event Driven Repo Details
-      run: |
-        echo "✅ Confirming event-driven repo checkout contents:"
-        ls -la event-driven
-        echo "--- END ---"
 
     - name: 🚀 Deploy Event Driven Service to Production
       working-directory: ./event-driven
