@@ -1,4 +1,4 @@
-name: Production One Click Deploy
+name: Production One Click Deployment
 
 on:
   workflow_dispatch:
