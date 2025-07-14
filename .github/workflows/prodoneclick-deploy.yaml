@@ -36,7 +36,7 @@ jobs:
       with:
         fetch-depth: 0
         
-   -  name: Set RC_COMMIT
+    - name: Set RC_COMMIT
       run: echo "RC_COMMIT=$RC_COMMIT" >> $GITHUB_ENV
       env:
         RC_COMMIT: ${{ github.event.inputs.RC_COMMIT || github.sha }}
