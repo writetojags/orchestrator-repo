@@ -1,10 +1,10 @@
 name: event-service
-repo: writetojags/event-driven-service-repo
+repo: writetojags/event-service-repo
 branch: main
+
 environments:
-  dev:
-    herokuApp: event-service-dev-app
-  staging:
-    herokuApp: event-service-stage-app
   prod:
-    herokuApp: event-service-prod-app
+    description: "Production deployment of event-service across 3 AZ zones"
+    herokuAppAZ1: event-service-prod-app-az1
+    herokuAppAZ2: event-service-prod-app-az2
+    herokuAppAZ3: event-service-prod-app-az3
