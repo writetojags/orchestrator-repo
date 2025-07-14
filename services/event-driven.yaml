@@ -5,7 +5,7 @@ branch: main
 environments:
   prod:
     description: "Production deployment of event-driven service across 3 AZ zones"
-    herokuAppAZ1: event-driven-prod-app-az1
-    herokuAppAZ2: event-driven-prod-app-az2
-    herokuAppAZ3: event-driven-prod-app-az3
+    herokuAppAZ1: event_driven_prod_app_az1
+    herokuAppAZ2: event_driven_prod_app_az2
+    herokuAppAZ3: event_driven_prod_app_az3
 
