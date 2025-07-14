@@ -11,6 +11,9 @@ for AZ in az1 az2 az3
 do
   APP_NAME_VAR="${SERVICE^^}_APP_${AZ^^}"
   APP_NAME=${!APP_NAME_VAR}
+  
+  echo "DEBUG: Using APP_NAME_VAR=$APP_NAME_VAR"
+  echo "DEBUG: Using APP_NAME=$APP_NAME"
 
   echo "✅ Pushing to $APP_NAME..."
   git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$APP_NAME.git $COMMIT:master
