@@ -79,7 +79,7 @@ jobs:
       uses: actions/checkout@v3
       with:
         repository: writetojags/event-driven-repo
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.EVENT_DRIVEN_REPO_TOKEN }}
         ref: ${{ env.EVENT_DRIVEN_REF }}
         path: event-driven
         fetch-depth: 0
