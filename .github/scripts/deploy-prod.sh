@@ -32,8 +32,7 @@ $COMMIT:master
       ROLL_APP_VAR="${SERVICE^^}_APP_${ROLL_AZ^^}"
       ROLL_APP=${!ROLL_APP_VAR}
       echo "Rolling back $ROLL_APP to $PREV_COMMIT"
-      git push -f https://heroku:${HEROKU_API_KEY}@git.heroku.com/${ROLL_APP}.git
-$PREV_COMMIT:master
+      git push -f https://heroku:${HEROKU_API_KEY}@git.heroku.com/${ROLL_APP}.git $PREV_COMMIT:master
     done
 
     exit 1
