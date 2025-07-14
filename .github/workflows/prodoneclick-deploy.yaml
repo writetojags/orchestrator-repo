@@ -34,7 +34,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
       with:
-        fetch-depth: 0
+      repository: writetojags/event-driven-repo
+      ref: $RC_COMMIT
+      path: event-driven
+        
         
     - name: Set RC_COMMIT
       run: echo "RC_COMMIT=$RC_COMMIT" >> $GITHUB_ENV
@@ -53,10 +56,10 @@ jobs:
         echo "HEROKU_API_KEY = $HEROKU_API_KEY"
 
     - name: Deploy Event Driven Service
+      working-directory: ./event-driven
       run: |
-        bash .github/scripts/deploy-prod.sh event_driven \
-          ${{ github.event.inputs.RC_COMMIT }} \
-          "$EVENT_DRIVEN_APP_AZ1" "$EVENT_DRIVEN_APP_AZ2" "$EVENT_DRIVEN_APP_AZ3"
+        git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" HEAD:master
+
 
     - name: Deploy Event Service
       run: |
