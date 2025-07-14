@@ -38,12 +38,12 @@ jobs:
 
     - name: Deploy Event Driven Service
       run: |
-        bash scripts/deploy-prod.sh event-driven-service ${{ github.event.inputs.RC_COMMIT }}
+        bash .github/scripts/deploy-prod.sh event-driven-service ${{ github.event.inputs.RC_COMMIT }}
 
     - name: Deploy Event Service
       run: |
-        bash scripts/deploy-prod.sh event-service ${{ github.event.inputs.RC_COMMIT }}
+        bash .github/scripts/deploy-prod.sh event-service ${{ github.event.inputs.RC_COMMIT }}
 
     - name: Deploy Tolerant Reader Service
       run: |
-        bash scripts/deploy-prod.sh tolerant-reader-service ${{ github.event.inputs.RC_COMMIT }}
+        bash .github/scripts/deploy-prod.sh tolerant-reader-service ${{ github.event.inputs.RC_COMMIT }}
