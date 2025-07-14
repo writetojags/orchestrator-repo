@@ -35,6 +35,14 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
+        
+    - name: Print ENV VARS
+      run: |
+        echo "EVENT_DRIVEN_APP_AZ1 = $EVENT_DRIVEN_APP_AZ1"
+        echo "EVENT_DRIVEN_APP_AZ2 = $EVENT_DRIVEN_APP_AZ2"
+        echo "EVENT_DRIVEN_APP_AZ3 = $EVENT_DRIVEN_APP_AZ3"
+        echo "HEROKU_API_KEY = $HEROKU_API_KEY"
+
 
     - name: Deploy Event Driven Service
       run: |
