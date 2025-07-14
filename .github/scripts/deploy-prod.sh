@@ -13,7 +13,7 @@ do
   APP_NAME=${!APP_NAME_VAR}
   
   echo "DEBUG: Using APP_NAME_VAR=$APP_NAME_VAR"
-  echo "DEBUG: Using APP_NAME=$APP_NAME"
+  echo "DEBUG: Using root cause APP_NAME=$APP_NAME"
 
   echo "✅ Pushing to $APP_NAME..."
   git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$APP_NAME.git $COMMIT:master
