@@ -21,8 +21,7 @@ do
   fi
 
   echo "✅ Pushing to $APP_NAME..."
-  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
-"$COMMIT:master"
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" "$COMMIT:master"
 
   echo "⏳ Waiting for deploy to finish..."
   sleep 10
