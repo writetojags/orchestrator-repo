@@ -7,30 +7,27 @@ EVENT_DRIVEN_APP_AZ1=$3
 EVENT_DRIVEN_APP_AZ2=$4
 EVENT_DRIVEN_APP_AZ3=$5
 
-
 echo "✅ Deploying $SERVICE with commit $COMMIT"
 
-# Loop over availability zones
 for AZ in az1 az2 az3
 do
-  # Dynamically resolve APP_NAME
-  APP_NAME_VAR="${SERVICE^^}_APP_${AZ^^}"
-  APP_NAME=${!APP_NAME_VAR}
+  if [ "$AZ" == "az1" ]; then APP_NAME=$EVENT_DRIVEN_APP_AZ1; fi
+  if [ "$AZ" == "az2" ]; then APP_NAME=$EVENT_DRIVEN_APP_AZ2; fi
+  if [ "$AZ" == "az3" ]; then APP_NAME=$EVENT_DRIVEN_APP_AZ3; fi
 
   if [ -z "$APP_NAME" ]; then
-    echo "❌ ERROR: APP_NAME is empty for AZ=$AZ (APP_NAME_VAR=$APP_NAME_VAR)"
+    echo "❌ ERROR: APP_NAME is empty for AZ=$AZ"
     exit 1
   fi
 
-  echo "🐾 DEBUG: Using APP_NAME_VAR=$APP_NAME_VAR"
-  echo "🐾 DEBUG: Resolved APP_NAME=$APP_NAME"
-
-  echo "🚀 Pushing to $APP_NAME..."
-  git push "https://heroku:$HEROKU_API_KEY@git.heroku.com/$APP_NAME.git" "$COMMIT:master"
+  echo "✅ Pushing to $APP_NAME..."
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
+"$COMMIT:master"
 
   echo "⏳ Waiting for deploy to finish..."
   sleep 10
 done
+
 
 # Health check all deployed apps
 for AZ in az1 az2 az3
