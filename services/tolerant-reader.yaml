@@ -4,7 +4,7 @@ branch: main
 
 environments:
   prod:
-    description: "Production deployment of tolerant-reader service across 3 AZ zones"
+    description: "Production deployment of tolerant-reader service across ALL 3 AZ zones"
     herokuAppAZ1: tolerant-reader-prod-app-az1
     herokuAppAZ2: tolerant-reader-prod-app-az2
     herokuAppAZ3: tolerant-reader-prod-app-az3
