@@ -16,9 +16,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Resolve RC_COMMIT: use input if given, else use current commit SHA
-      RC_COMMIT: ${{ github.event.inputs.RC_COMMIT != '' && github.event.inputs.RC_COMMIT || github.sha }}
-
       HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       HEROKU_EMAIL: ${{ secrets.HEROKU_EMAIL }}
 
@@ -40,6 +37,9 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Set RC_COMMIT
+      run: echo "RC_COMMIT=${{ github.event.inputs.RC_COMMIT || github.sha }}" >> $GITHUB_ENV
+
     - name: Print ENV VARS
       run: |
         echo "RC_COMMIT = $RC_COMMIT"
@@ -55,6 +55,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         ref: ${{ env.RC_COMMIT }}
         path: event-driven
+        fetch-depth: 0
 
     - name: Deploy Event Driven Service
       working-directory: ./event-driven
@@ -63,10 +64,8 @@ jobs:
 
     - name: Deploy Event Service
       run: |
-        bash .github/scripts/deploy-prod.sh event $RC_COMMIT \
-          "$EVENT_SERVICE_APP_AZ1" "$EVENT_SERVICE_APP_AZ2" "$EVENT_SERVICE_APP_AZ3"
+        bash .github/scripts/deploy-prod.sh event $RC_COMMIT
 
     - name: Deploy Tolerant Reader Service
       run: |
-        bash .github/scripts/deploy-prod.sh tolerant_reader $RC_COMMIT \
-          "$TOLERANT_READER_APP_AZ1" "$TOLERANT_READER_APP_AZ2" "$TOLERANT_READER_APP_AZ3"
+        bash .github/scripts/deploy-prod.sh tolerant_reader $RC_COMMIT
