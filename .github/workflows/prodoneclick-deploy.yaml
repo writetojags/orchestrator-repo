@@ -7,8 +7,9 @@ on:
   workflow_dispatch:
     inputs:
       RC_COMMIT:
-        description: 'Orchestrator Commit SHA'
-        required: false
+        description: 'Orchestrator Branch or Commit (default main)
+        required: true
+        default: 'main'
       EVENT_DRIVEN_REF:
         description: 'Branch or tag in event-driven-repo'
         required: false
