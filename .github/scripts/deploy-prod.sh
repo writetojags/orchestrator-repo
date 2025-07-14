@@ -16,9 +16,9 @@ do
     echo "❌ ERROR: App name for $APP_NAME_VAR is not set!"
     exit 1
   fi
-
-  echo "✅ Pushing to $APP_NAME..."
-  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" "$COMMIT:master"
+  echo " Checking out $COMMIT ..."
+  echo "✅ Pushing to $APP_NAME master branch ..."
+  git push https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git HEAD:master
 
   echo "⏳ Waiting for deploy to finish..."
   sleep 10
