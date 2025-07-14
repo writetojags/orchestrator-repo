@@ -1,0 +1,10 @@
+name: tolerant-reader
+repo: writetojags/tolerant-reader-repo
+branch: main
+environments:
+  dev:
+    herokuApp: tolerant-reader-dev-app
+  staging:
+    herokuApp: tolerant-reader-stage-app
+  prod:
+    herokuApp: tolerant-reader-prod-app

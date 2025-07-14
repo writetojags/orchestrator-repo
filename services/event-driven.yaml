@@ -1,0 +1,10 @@
+name: event-driven
+repo: writetojags/event-driven-repo
+branch: main
+environments:
+  dev:
+    herokuApp: event-driven-dev-app
+  staging:
+    herokuApp: event-driven-stage-app
+  prod:
+    herokuApp: event-driven-prod-app

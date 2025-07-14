@@ -1,0 +1,10 @@
+name: event-service
+repo: writetojags/event-driven-service-repo
+branch: main
+environments:
+  dev:
+    herokuApp: event-service-dev-app
+  staging:
+    herokuApp: event-service-stage-app
+  prod:
+    herokuApp: event-service-prod-app
