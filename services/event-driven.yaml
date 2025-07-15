@@ -1,6 +1,6 @@
 name: event-driven
 repo: writetojags/event-driven-repo
-branch: main
+branch: master
 
 environments:
   prod:
