@@ -97,6 +97,11 @@ jobs:
         echo "EVENT_SERVICE_APP_AZ1 = $EVENT_SERVICE_APP_AZ1"
         echo "TOLERANT_READER_APP_AZ1 = $TOLERANT_READER_APP_AZ1"
         echo "--- END ENV ---"
+    - name: ✅ Print Event Service Secrets
+      run: |
+        echo "EVENT_SERVICE_APP_AZ1 = $EVENT_SERVICE_APP_AZ1"
+        echo "EVENT_SERVICE_APP_AZ2 = $EVENT_SERVICE_APP_AZ2"
+        echo "EVENT_SERVICE_APP_AZ3 = $EVENT_SERVICE_APP_AZ3"
 
     - name: ✅ Checkout Event Driven Repo
       uses: actions/checkout@v3
