@@ -110,7 +110,7 @@ jobs:
     - name: ✅ Checkout Event Service Repo
       uses: actions/checkout@v3
       with:
-        repository: writetojags/writetojags/event-driven-service-repo
+        repository: writetojags/event-driven-service-repo
         token: ${{ secrets.EVENT_SERVICE_REPO_TOKEN }}
         ref: ${{ env.EVENT_SERVICE_REF }}
         path: event-service
