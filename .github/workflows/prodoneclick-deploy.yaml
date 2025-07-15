@@ -137,7 +137,7 @@ jobs:
       run: |
         echo "=== Deploy Event Service ==="
         echo "RC_COMMIT = $RC_COMMIT"
-        bash ../.github/scripts/deploy-prod.sh event "$RC_COMMIT" "$EVENT_SERVICE_APP_AZ1" "$EVENT_SERVICE_APP_AZ2" "$EVENT_SERVICE_APP_AZ3"
+        bash ../.github/scripts/deploy-prod.sh event_service "$RC_COMMIT" "$EVENT_SERVICE_APP_AZ1" "$EVENT_SERVICE_APP_AZ2" "$EVENT_SERVICE_APP_AZ3"
 
     - name: 🚀 Deploy Tolerant Reader Service to Production
       working-directory: ./tolerant-reader
