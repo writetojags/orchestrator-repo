@@ -43,8 +43,8 @@ do
   fi
 
   echo "🔎 Running health check on $APP_NAME (AZ=$AZ)..."
-  echo "📍 Health check URL: https://${APP_NAME}.herokuapp.com/actuator/health"
-  if ! curl -f "https://${APP_NAME}.herokuapp.com/actuator/health"; then
+  echo "📍 Health check URL: https://${APP_NAME}.herokuapp.com/health"
+  if ! curl -f "https://${APP_NAME}.herokuapp.com/health"; then
     echo "❌ Health check failed on $APP_NAME!"
     echo "⚠️ Rolling back all AZs for $SERVICE..."
 
