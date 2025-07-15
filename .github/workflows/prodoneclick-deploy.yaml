@@ -110,7 +110,7 @@ jobs:
     - name: ✅ Checkout Event Service Repo
       uses: actions/checkout@v3
       with:
-        repository: writetojags/event-service-repo
+        repository: writetojags/writetojags/event-driven-service-repo
         token: ${{ secrets.EVENT_SERVICE_REPO_TOKEN }}
         ref: ${{ env.EVENT_SERVICE_REF }}
         path: event-service
@@ -119,7 +119,7 @@ jobs:
     - name: ✅ Checkout Tolerant Reader Repo
       uses: actions/checkout@v3
       with:
-        repository: writetojags/tolerant-reader-repo
+        repository: writetojags/tolerant-reader-service
         token: ${{ secrets.TOLERANT_READER_REPO_TOKEN }}
         ref: ${{ env.TOLERANT_READER_REF }}
         path: tolerant-reader
