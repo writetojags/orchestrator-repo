@@ -85,7 +85,7 @@ jobs:
           echo "TOLERANT_READER_REF=${{ github.event.inputs.TOLERANT_READER_REF }}" >> $GITHUB_ENV
         fi
 
-    - name: ✅ Print All ENV Vars for Debugging
+    - name: ✅ Print All ENV Vars for Debugging used
       run: |
         echo "--- ENVIRONMENT VARIABLES ---"
         echo "RC_COMMIT = $RC_COMMIT"
