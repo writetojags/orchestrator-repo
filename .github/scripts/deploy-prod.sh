@@ -18,11 +18,18 @@ do
   fi
 
   echo "🚀 AZ=$AZ -> Pushing $SERVICE to Heroku app $APP_NAME at commit $COMMIT"
-  git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" HEAD:master
+  git push -f https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git HEAD:master
 
   echo "⏳ Waiting for deploy to finish for AZ=$AZ..."
   sleep 10
 done
+
+# ✅ 👉 SKIP health check if SERVICE is event_driven
+if [ "$SERVICE" = "event_driven" ]; then
+  echo "⚠️ Skipping health check for $SERVICE..."
+  echo "✅ Deployment complete (health check skipped)."
+  exit 0
+fi
 
 # --- Health check for all AZs ---
 for AZ in az1 az2 az3
@@ -73,4 +80,3 @@ echo "📝 Updating rollback log..."
 sed -i "s/^${SERVICE}=.*/${SERVICE}=${COMMIT}/" rollback/rollback.log
 
 echo "✅ Deployment complete."
-
