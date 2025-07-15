@@ -6,6 +6,22 @@ COMMIT=$2
 
 echo "✅ Starting deploy-prod.sh for $SERVICE with commit $COMMIT"
 
+# Optional: Load local environment variables if deploy.env exists
+if [ -f "./deploy.env" ]; then
+  echo "🔄 Loading local deploy.env..."
+  source ./deploy.env
+fi
+
+# Print all _APP_ variables for debugging
+echo "ℹ️ Current environment APP variables:"
+printenv | grep _APP_
+
+# Check if HEROKU_API_KEY is set
+if [ -z "$HEROKU_API_KEY" ]; then
+  echo "❌ ERROR: HEROKU_API_KEY is not set!"
+  exit 1
+fi
+
 # --- Push to Heroku for all AZs ---
 for AZ in az1 az2 az3
 do
@@ -18,8 +34,10 @@ do
   fi
 
   echo "🚀 AZ=$AZ -> Pushing $SERVICE to Heroku app $APP_NAME at commit $COMMIT"
-  git push -f https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git HEAD:master
+  git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
+HEAD:master
 
+  echo "✅ APP_NAME used: '$APP_NAME'"
   echo "⏳ Waiting for deploy to finish for AZ=$AZ..."
   sleep 10
 done
@@ -43,8 +61,10 @@ do
   fi
 
   echo "🔎 Running health check on $APP_NAME (AZ=$AZ)..."
-  echo "📍 Health check URL: https://${APP_NAME}.herokuapp.com/health"
-  if ! curl -f "https://${APP_NAME}.herokuapp.com/health"; then
+  HEALTH_URL="https://${APP_NAME}.herokuapp.com/actuator/health"
+  echo "📍 Health check URL: $HEALTH_URL"
+
+  if ! curl -f "$HEALTH_URL"; then
     echo "❌ Health check failed on $APP_NAME!"
     echo "⚠️ Rolling back all AZs for $SERVICE..."
 
@@ -66,7 +86,8 @@ do
       fi
 
       echo "↩️ Rolling back $ROLL_APP to $PREV_COMMIT"
-      git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${ROLL_APP}.git" "$PREV_COMMIT:master"
+      git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${ROLL_APP}.git"
+"$PREV_COMMIT:master"
     done
 
     exit 1
