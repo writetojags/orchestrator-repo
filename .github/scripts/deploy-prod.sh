@@ -34,8 +34,7 @@ do
   fi
 
   echo "🚀 AZ=$AZ -> Pushing $SERVICE to Heroku app $APP_NAME at commit $COMMIT"
-  git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
-HEAD:master
+  git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" HEAD:master
 
   echo "✅ APP_NAME used: '$APP_NAME'"
   echo "⏳ Waiting for deploy to finish for AZ=$AZ..."
