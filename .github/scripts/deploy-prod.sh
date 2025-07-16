@@ -44,12 +44,31 @@ mkdir -p rollback
 touch rollback/rollback.log
 
 echo "✈️ Pushing to Heroku apps..."
-for APP in "$AZ1" "$AZ2" "$AZ3"
-do
+#for APP in "$AZ1" "$AZ2" "$AZ3"
+#do
+#  echo "🚀 Deploying $SERVICE to Heroku app $APP..."
+#  TARGET_BRANCH=${TARGET_BRANCH:-master}
+ # git push  "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:${TARGET_BRANCH}
+ # echo "✅ Finished push for $APP"
+#done working code for deployments for all zones
+
+for APP in "$AZ1" "$AZ2" "$AZ3"; do
   echo "🚀 Deploying $SERVICE to Heroku app $APP..."
   TARGET_BRANCH=${TARGET_BRANCH:-master}
-  git push  "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:${TARGET_BRANCH}
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:${TARGET_BRANCH}
   echo "✅ Finished push for $APP"
+
+  # Health check
+  HEALTH_URL="https://${APP}.herokuapp.com${HEALTH_PATH}"
+  echo "🔎 Running health check on $APP at $HEALTH_URL ..."
+  if curl -f "$HEALTH_URL"; then
+    echo "✅ Health check passed for $APP!"
+  else
+    echo "❌ Health check failed for $APP!"
+    echo "❌ Exiting deployment."
+    exit 1
+  fi
 done
+
 
 echo "✅ All deployments completed successfully!"
