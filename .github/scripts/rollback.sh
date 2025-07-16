@@ -2,45 +2,50 @@
 set -e
 
 SERVICE=$1
+PREV_COMMIT=$2
+TARGET_BRANCH=${3:-main}
+
+echo "🌟 Starting rollback for $SERVICE to commit $PREV_COMMIT on branch $TARGET_BRANCH"
 
 if [ -z "$HEROKU_API_KEY" ]; then
-  echo "❌ HEROKU_API_KEY not set"
+  echo "❌ ERROR: HEROKU_API_KEY not set!"
   exit 1
 fi
 
-ROLLBACK_FILE="rollback/rollback.log"
+# Load local env if exists
+if [ -f "./deploy.env" ]; then
+  echo "📜 Loading local deploy.env..."
+  source ./deploy.env
+fi
 
-if [ ! -f "$ROLLBACK_FILE" ]; then
-  echo "❌ rollback.log not found"
+echo "🔍 Determining AZ app names for $SERVICE..."
+
+if [ "$SERVICE" = "event_driven" ]; then
+  AZ1=$EVENT_DRIVEN_APP_AZ1
+  AZ2=$EVENT_DRIVEN_APP_AZ2
+  AZ3=$EVENT_DRIVEN_APP_AZ3
+elif [ "$SERVICE" = "event_service" ]; then
+  AZ1=$EVENT_SERVICE_APP_AZ1
+  AZ2=$EVENT_SERVICE_APP_AZ2
+  AZ3=$EVENT_SERVICE_APP_AZ3
+elif [ "$SERVICE" = "tolerant_reader" ]; then
+  AZ1=$TOLERANT_READER_APP_AZ1
+  AZ2=$TOLERANT_READER_APP_AZ2
+  AZ3=$TOLERANT_READER_APP_AZ3
+else
+  echo "❌ ERROR: Unknown SERVICE=$SERVICE"
   exit 1
 fi
 
-PREV_COMMIT=$(grep "^${SERVICE}=" "$ROLLBACK_FILE" | cut -d= -f2)
+echo "✅ AZ Apps resolved: $AZ1, $AZ2, $AZ3"
 
-if [ -z "$PREV_COMMIT" ]; then
-  echo "❌ No previous commit recorded for $SERVICE"
-  exit 1
-fi
-
-echo "🔄 Rolling back $SERVICE to commit $PREV_COMMIT"
-
-# Load AZ variables
-AZ1_VAR="${SERVICE^^}_APP_AZ1"
-AZ2_VAR="${SERVICE^^}_APP_AZ2"
-AZ3_VAR="${SERVICE^^}_APP_AZ3"
-
-AZ1="${!AZ1_VAR}"
-AZ2="${!AZ2_VAR}"
-AZ3="${!AZ3_VAR}"
-
-for AZ in "$AZ1" "$AZ2" "$AZ3"; do
-  if [ -z "$AZ" ]; then
-    echo "❌ AZ app name is missing"
-    exit 1
-  fi
-
-  echo "👉 Rolling back Heroku app: $AZ"
-  git push -f "https://heroku:$HEROKU_API_KEY@git.heroku.com/$AZ.git" "$PREV_COMMIT:master"
+echo "⏪ Rolling back to $PREV_COMMIT..."
+for APP in "$AZ1" "$AZ2" "$AZ3"
+do
+  echo "🚀 Rolling back $SERVICE to Heroku app $APP..."
+  git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git"
+$PREV_COMMIT:$TARGET_BRANCH
+  echo "✅ Finished rollback for $APP"
 done
 
-echo "✅ Rollback complete for $SERVICE"
+echo "✅ Rollback complete!"
