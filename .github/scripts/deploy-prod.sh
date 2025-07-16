@@ -3,59 +3,58 @@ set -e
 
 SERVICE=$1
 COMMIT=$2
-AZ1=$3
-AZ2=$4
-AZ3=$5
+AZ_LIST="az1 az2 az3"
 
-echo "🚀 Starting deploy for $SERVICE with commit $COMMIT"
-echo "🔎 AZ apps: $AZ1, $AZ2, $AZ3"
-
-if [ -z "$HEROKU_API_KEY" ]; then
-  echo "❌ HEROKU_API_KEY not set"
-  exit 1
+if [ ! -f rollback/rollback.log ]; then
+  echo "Initializing rollback log..."
+  mkdir -p rollback
+  touch rollback/rollback.log
 fi
 
-# Default context path and health endpoint
-CONTEXT_PATH=${CONTEXT_PATH:-""}
-HEALTH_PATH=${HEALTH_PATH:-"/actuator/health"}
+for AZ in $AZ_LIST; do
+  APP_NAME_VAR="${SERVICE^^}_APP_${AZ^^}"
+  APP_NAME="${!APP_NAME_VAR}"
 
-for AZ in "$AZ1" "$AZ2" "$AZ3"; do
-  if [ -z "$AZ" ]; then
-    echo "❌ AZ app name is missing for $SERVICE"
+  if [ -z "$APP_NAME" ]; then
+    echo "ERROR: App name for $APP_NAME_VAR is not set!"
     exit 1
   fi
 
-  echo "👉 Deploying to Heroku app: $AZ"
+  echo "Pushing $SERVICE to Heroku app $APP_NAME at commit $COMMIT..."
+  git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" "$COMMIT:master"
 
-  # Push to Heroku
-  git push -f "https://heroku:$HEROKU_API_KEY@git.heroku.com/$AZ.git"
-"$COMMIT:master"
-
-  echo "⏳ Waiting for deployment to finish..."
+  echo "Waiting for deploy to finish for $AZ..."
   sleep 10
+done
 
-  HEALTH_URL="https://${AZ}.herokuapp.com${CONTEXT_PATH}${HEALTH_PATH}"
-  echo "🌐 Health check URL: $HEALTH_URL"
+for AZ in $AZ_LIST; do
+  APP_NAME_VAR="${SERVICE^^}_APP_${AZ^^}"
+  APP_NAME="${!APP_NAME_VAR}"
 
-  if ! curl --silent --fail --location "$HEALTH_URL"; then
-    echo "❌ Health check FAILED on $AZ"
-    echo "⚡ Rolling back all AZs for $SERVICE..."
-    bash ./rollback.sh "$SERVICE"
+  HEALTH_URL="https://${APP_NAME}.herokuapp.com/actuator/health"
+  echo "Checking health: $HEALTH_URL"
+
+  if ! curl -f "$HEALTH_URL"; then
+    echo "Health check failed on $APP_NAME! Rolling back..."
+    PREV_COMMIT=$(grep "^${SERVICE}=" rollback/rollback.log | cut -d= -f2)
+
+    if [ -z "$PREV_COMMIT" ]; then
+      echo "No previous commit found to rollback!"
+      exit 1
+    fi
+
+    for ROLL_AZ in $AZ_LIST; do
+      ROLL_APP_VAR="${SERVICE^^}_APP_${ROLL_AZ^^}"
+      ROLL_APP="${!ROLL_APP_VAR}"
+
+      echo "Rolling back $ROLL_APP to $PREV_COMMIT..."
+      git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${ROLL_APP}.git" "$PREV_COMMIT:master"
+    done
+
     exit 1
-  else
-    echo "✅ Health check PASSED on $AZ"
   fi
 done
 
-# Update rollback log with successful commit
-ROLLBACK_FILE="rollback/rollback.log"
-mkdir -p rollback
-touch "$ROLLBACK_FILE"
-
-if grep -q "^${SERVICE}=" "$ROLLBACK_FILE"; then
-  sed -i.bak "s|^${SERVICE}=.*|${SERVICE}=${COMMIT}|" "$ROLLBACK_FILE"
-else
-  echo "${SERVICE}=${COMMIT}" >> "$ROLLBACK_FILE"
-fi
-
-echo "✅ Deployment complete for $SERVICE"
+echo "✅ All health checks passed!"
+sed -i "s/^${SERVICE}=.*/${SERVICE}=${COMMIT}/" rollback/rollback.log || echo "${SERVICE}=${COMMIT}" >> rollback/rollback.log
+echo "✅ Deployment complete."
