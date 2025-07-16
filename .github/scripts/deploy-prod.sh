@@ -4,6 +4,7 @@ set -e
 SERVICE=$1
 COMMIT=$2
 TARGET_BRANCH=${3:-main}
+HEALTH_PATH="/actuator/health"
 
 echo "🌟 Starting deploy-prod.sh for SERVICE=$SERVICE with commit=$COMMIT to branch=$TARGET_BRANCH"
 
