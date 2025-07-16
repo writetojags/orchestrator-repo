@@ -55,6 +55,7 @@ jobs:
       with:
         repository: writetojags/event-driven-repo
         token: ${{ secrets.EVENT_DRIVEN_REPO_TOKEN }}
+        ref: master
         path: event-driven
         fetch-depth: 0
 
@@ -63,6 +64,7 @@ jobs:
       with:
         repository: writetojags/event-service-repo
         token: ${{ secrets.EVENT_SERVICE_REPO_TOKEN }}
+        ref: main
         path: event-service
         fetch-depth: 0
 
@@ -71,6 +73,7 @@ jobs:
       with:
         repository: writetojags/tolerant-reader-repo
         token: ${{ secrets.TOLERANT_READER_REPO_TOKEN }}
+        ref: main
         path: tolerant-reader
         fetch-depth: 0
 
