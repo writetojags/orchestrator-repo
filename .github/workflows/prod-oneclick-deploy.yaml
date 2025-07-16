@@ -62,7 +62,7 @@ jobs:
       - name: ✅ Checkout Tolerant Reader Repo
         uses: actions/checkout@v3
         with:
-          repository: writetojags/tolerant-reader-repo
+          repository: writetojags/tolerant-reader-service
           token: ${{ secrets.TOLERANT_READER_REPO_TOKEN }}
           ref: main
           path: tolerant-reader
