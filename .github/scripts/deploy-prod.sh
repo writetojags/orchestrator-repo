@@ -47,7 +47,8 @@ echo "✈️ Pushing to Heroku apps..."
 for APP in "$AZ1" "$AZ2" "$AZ3"
 do
   echo "🚀 Deploying $SERVICE to Heroku app $APP..."
-  git push -f "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:$TARGET_BRANCH
+  TARGET_BRANCH=${TARGET_BRANCH:-master}
+  git push  "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:${TARGET_BRANCH}
   echo "✅ Finished push for $APP"
 done
 
