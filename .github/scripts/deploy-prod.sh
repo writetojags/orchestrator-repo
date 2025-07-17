@@ -91,7 +91,7 @@ if [ "$i" -eq 5 ]; then
   echo "❌ Final health check failed for $APP at $HEALTH_URL"
   exit 1
 fi
-
+done
 
 
 
