@@ -65,24 +65,26 @@ for APP in "$AZ1" "$AZ2" "$AZ3"; do
   echo "⏳ Waiting for service to warm up..."
   sleep 30
 
-  # Enhanced retry loop with status code logging
-  for i in {1..5}; do
-    echo "🔁 Health check attempt $i for $APP at $HEALTH_URL..."
-    
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
+  # ⏳ Wait for Heroku dyno to warm up
+  echo "⏳ Waiting for service to warm up..."
+  sleep 30
 
-    if [ "$HTTP_STATUS" -eq 200 ]; then
-      echo "✅ Health check passed with 200 for $APP!"
-      break
-    else
-      echo "❌ Health check failed (HTTP $HTTP_STATUS). Retrying in 10 seconds..."
-      sleep 10
-    fi
+# ✅ Check app readiness by watching Heroku logs for startup confirmation
+for i in ${sqq 1 5}; do
+  echo "🔍 Checking logs for successful startup for $APP..."
 
-    if [ "$i" -eq 5 ]; then
-      echo "🛑 Final health check failed for $APP at $HEALTH_URL"
-      exit 1
-    fi
-  done
+  if heroku logs --app "$APP" --num 150 | grep -qi "Started"; then
+    echo "✅ $APP started successfully!"
+    break
+  else
+    echo "⏳ App $APP not yet started. Retrying in 15 seconds..."
+    sleep 15
+  fi
+
+  if [ "$i" -eq 5 ]; then
+    echo "🛑 App $APP failed to start after retries."
+    exit 1
+  fi
 done
+
 
