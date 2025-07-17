@@ -59,20 +59,17 @@ for APP in "$AZ1" "$AZ2" "$AZ3"; do
   git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:${TARGET_BRANCH}
   echo "✅ Finished push for $APP"
 
-echo "⏳ Waiting for app to become healthy..."
-HEALTH_URL="https://${APP}.herokuapp.com${HEALTH_PATH:-/actuator/health}"
-
-echo "🔍 Waiting for app $APP to start by checking logs..."
+echo "⏳ Waiting for $APP to become healthy at $HEALTH_URL..."
 for i in {1..5}; do
-  if heroku logs --app "$APP" --num 100 | grep -q "Started"; then
-    echo "✅ App $APP started successfully!"
+  echo "🔁 Health check attempt $i for $APP..."
+  if curl -sf "$HEALTH_URL" > /dev/null; then
+    echo "✅ Health check passed for $APP!"
     break
   else
-    echo "⏱️ App $APP not yet started. Retrying in 10 seconds..."
+    echo "❌ Health check failed. Retrying in 10 seconds..."
     sleep 10
   fi
 done
-
 
 # Final check after retries
 echo "🧪 Final health check for $APP at $HEALTH_URL..."
