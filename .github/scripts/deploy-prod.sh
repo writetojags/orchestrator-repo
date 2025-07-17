@@ -83,7 +83,4 @@ else
   echo "⛔ Exiting deployment."
   exit 1
 fi
-
-
-
 echo "✅ All deployments completed successfully!"
