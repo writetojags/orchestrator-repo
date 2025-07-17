@@ -83,6 +83,6 @@ else
   echo "⛔ Exiting deployment."
   exit 1
 fi
-
+done # Add rhis to close the outer loop
 echo "🎉 All deployments completed successfully!"
 
