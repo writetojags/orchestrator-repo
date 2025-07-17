@@ -70,8 +70,7 @@ for AZ in "az1" "az2" "az3"; do
   APP_URL="${APP_NAME}.herokuapp.com"
   echo "🚀 Deploying $SERVICE to $APP_URL"
 
-  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
-HEAD:main
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" HEAD:main
 
   # Health check
   HEALTH_PATH="/actuator/health"
