@@ -57,8 +57,12 @@ echo "✈️ Pushing to Heroku apps..."
 for AZ in "SAZ1" "SAZ2" "SAZ3"; do
   echo "🔍 Resolving Heroku app for $AZ..."
 
-  APP_PREFIX="event-driven-prod-app-${AZ,,: -1}"  # extracts 1, 2, 3 from SAZ1, SAZ2...
-  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^$APP_PREFIX" | head -n 1)
+  # Extract AZ number (1, 2, 3) and form partial prefix for search
+  AZ_NUM=${AZ: -1}
+  APP_PREFIX="event-driven-prod-app-az${AZ_NUM}"
+
+  # Dynamically resolve full Heroku app name
+  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^${APP_PREFIX}" | head -n 1)
 
   if [[ -z "$APP_NAME" ]]; then
     echo "❌ No matching Heroku app found for $AZ. Skipping..."
@@ -66,14 +70,13 @@ for AZ in "SAZ1" "SAZ2" "SAZ3"; do
   fi
 
   APP_URL="${APP_NAME}.herokuapp.com"
-  echo "✅ Found Heroku app for $AZ: $APP_NAME"
-
-
-
+  echo "✅ Found Heroku app: $APP_NAME"
+  
   echo "🚀 Deploying $SERVICE to Heroku app $APP_URL..."
   TARGET_BRANCH=${TARGET_BRANCH:-main}
 
-  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_URL%%.herokuapp.com}.git" HEAD:$TARGET_BRANCH
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
+"$TARGET_BRANCH:main"
   echo "✅ Finished push for $APP_URL"
 
   # Health check
@@ -84,25 +87,21 @@ for AZ in "SAZ1" "SAZ2" "SAZ3"; do
   sleep 30
 
   echo "🔍 Beginning health checks for $APP_URL at $HEALTH_URL..."
-
   for i in {1..5}; do
-    echo "🩺 Health check attempt $i for $APP_URL..."
-
+    echo "🩺 Health check attempt $i..."
     RESPONSE=$(curl -s "$HEALTH_URL")
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
 
-    echo "# HTTP $HTTP_STATUS - Response: $RESPONSE"
-
     if [[ "$HTTP_STATUS" -eq 200 && "$RESPONSE" == *"UP"* ]]; then
-      echo "✅ Health check passed for $APP_URL!"
+      echo "✅ Health check passed for $APP_URL"
       break
     else
       echo "❌ Health check failed (HTTP $HTTP_STATUS): Retrying in 10 seconds..."
       sleep 10
     fi
   done
-
 done
+
 
 
 
