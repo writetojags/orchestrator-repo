@@ -58,50 +58,42 @@ echo "✈️ Pushing to Heroku apps..."
 # Loop through Availability Zones
 for AZ in "az1" "az2" "az3"; do
   echo "🔍 Resolving Heroku app for $AZ..."
-
-  # Dynamically resolve Heroku app name by prefix match
-  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^${APP_PREFIX}${AZ}" | head -n 1)
+  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^${APP_PREFIX}-prod-app-${AZ}" | head -n 1)
 
   if [[ -z "$APP_NAME" ]]; then
     echo "❌ No matching Heroku app found for $AZ. Skipping..."
     continue
   fi
 
-  APP_URL="${APP_NAME}.herokuapp.com"
   echo "✅ Found Heroku app: $APP_NAME"
 
-  echo "🚀 Deploying $SERVICE to Heroku app $APP_URL..."
+  APP_URL="${APP_NAME}.herokuapp.com"
+  echo "🚀 Deploying $SERVICE to $APP_URL"
+
   git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
-HEAD:$TARGET_BRANCH
-  echo "✅ Finished push for $APP_URL"
+HEAD:main
 
   # Health check
   HEALTH_PATH="/actuator/health"
   HEALTH_URL="https://${APP_URL}${HEALTH_PATH}"
-
-  echo "⏳ Waiting for service to warm up..."
-  sleep 30
-
-  echo "🔎 Beginning health checks for $APP_URL at $HEALTH_URL..."
+  echo "⏳ Waiting for $APP_URL to warm up..."
+  sleep 20
 
   for i in {1..5}; do
-    echo "🩺 Health check attempt $i..."
-
+    echo "🔍 Health check attempt $i..."
     RESPONSE=$(curl -s "$HEALTH_URL")
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
 
-    echo "🧾 HTTP $HTTP_STATUS - Response: $RESPONSE"
-
-    if [[ "$HTTP_STATUS" -eq 200 && "$RESPONSE" == *"UP"* ]]; then
+    if [[ "$HTTP_STATUS" == "200" && "$RESPONSE" == *"UP"* ]]; then
       echo "✅ Health check passed for $APP_URL"
       break
     else
-      echo "❌ Health check failed (HTTP $HTTP_STATUS). Retrying in 10 seconds..."
+      echo "❌ Health check failed (HTTP $HTTP_STATUS). Retrying..."
       sleep 10
     fi
   done
-
 done
+
 
 
 
