@@ -62,17 +62,17 @@ for APP in "$AZ1" "$AZ2" "$AZ3"; do
 echo "⏳ Waiting for app to become healthy..."
 HEALTH_URL="https://${APP}.herokuapp.com${HEALTH_PATH:-/actuator/health}"
 
-# Retry loop: 5 attempts
+echo "🔍 Waiting for app $APP to start by checking logs..."
 for i in {1..5}; do
-  echo "🔁 Health check attempt $i for $APP at $HEALTH_URL..."
-  if curl -sf "$HEALTH_URL" > /dev/null; then
-    echo "✅ Health check passed for $APP!"
+  if heroku logs --app "$APP" --num 100 | grep -q "Started"; then
+    echo "✅ App $APP started successfully!"
     break
   else
-    echo "❌ Health check failed. Retrying in 10 seconds..."
+    echo "⏱️ App $APP not yet started. Retrying in 10 seconds..."
     sleep 10
   fi
 done
+
 
 # Final check after retries
 echo "🧪 Final health check for $APP at $HEALTH_URL..."
