@@ -62,11 +62,11 @@ for APP in "$AZ1" "$AZ2" "$AZ3"; do
 echo "⏳ Waiting for app to become healthy..."
 HEALTH_URL="https://${APP}.herokuapp.com${HEALTH_PATH:-/actuator/health}"
 
-# Retry loop: 5 attempts, wait 10s between
+# Retry loop: 5 attempts
 for i in {1..5}; do
-  echo "🔁 Health check attempt $i..."
+  echo "🔁 Health check attempt $i for $APP at $HEALTH_URL..."
   if curl -sf "$HEALTH_URL" > /dev/null; then
-    echo "✅ Health check passed!"
+    echo "✅ Health check passed for $APP!"
     break
   else
     echo "❌ Health check failed. Retrying in 10 seconds..."
@@ -74,8 +74,8 @@ for i in {1..5}; do
   fi
 done
 
-# Final check after retries (in case all failed)
-echo "📋 Final health check for $APP at $HEALTH_URL..."
+# Final check after retries
+echo "🧪 Final health check for $APP at $HEALTH_URL..."
 if curl -sf "$HEALTH_URL" > /dev/null; then
   echo "✅ Health check passed for $APP!"
 else
@@ -83,6 +83,6 @@ else
   echo "⛔ Exiting deployment."
   exit 1
 fi
-done # Add rhis to close the outer loop
+
 echo "🎉 All deployments completed successfully!"
 
