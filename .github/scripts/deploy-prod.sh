@@ -67,43 +67,33 @@ for APP in "$AZ1" "$AZ2" "$AZ3"; do
   echo "⏳ Waiting for service to warm up..."
   sleep 30
 
-  # 🔍 Confirm app startup using logs
-  for i in {1..5}; do
-    echo "📜 Checking logs for successful startup of $APP..."
-    if heroku logs --app "$APP" --num 150 | grep -qi "Started"; then
-      echo "✅ App $APP started successfully!"
-      break
-    else
-      echo "⏳ App $APP not yet started. Retrying in 15 seconds..."
-      sleep 15
-    fi
+ # ✅ Robust Health Check with Body Validation
+ echo "🔍 Beginning health checks for $APP at $HEALTH_URL..."
 
-    if [ "$i" -eq 5 ]; then
-      echo "❌ App $APP failed to start after retries."
-      exit 1
-    fi
-  done
+for i in {1..5}; do
+  echo "🌀 Health check attempt $i for $APP at $HEALTH_URL..."
+  
+  # Fetch both status and body
+  RESPONSE=$(curl -s "$HEALTH_URL")
+  HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
 
-  # 🌐 Health check with retry
-  echo "🔁 Beginning health checks for $APP at $HEALTH_URL..."
-  for i in {1..5}; do
-    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
-    if [ "$HTTP_STATUS" -eq 200 ]; then
-      echo "✅ Health check passed (200) for $APP!"
-      break
-    else
-      echo "❌ Health check failed (HTTP $HTTP_STATUS). Retrying in 10 seconds..."
-      sleep 10
-    fi
+  echo "ℹ️  HTTP $HTTP_STATUS - Response: $RESPONSE"
 
-    if [ "$i" -eq 5 ]; then
-      echo "🛑 Final health check failed for $APP at $HEALTH_URL"
-      exit 1
-    fi
-  done
+  # Check for both 200 OK and body containing "UP"
+  if [[ "$HTTP_STATUS" -eq 200 && "$RESPONSE" == *"UP"* ]]; then
+    echo "✅ Health check passed for $APP!"
+    break
+  else
+    echo "❌ Health check failed (HTTP $HTTP_STATUS): Retrying in 10 seconds..."
+    sleep 10
+  fi
+
+  if [ "$i" -eq 5 ]; then
+    echo "🛑 Final health check failed for $APP at $HEALTH_URL"
+    exit 1
+  fi
 done
 
-echo "🎉 All deployments completed successfully!"
 
 
 
