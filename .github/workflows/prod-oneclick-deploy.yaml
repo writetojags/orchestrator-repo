@@ -40,6 +40,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
+          
+      - name: 🔧 Install Heroku CLI
+        run: |
+           curl https://cli-assets.heroku.com/install.sh | sh
 
       - name: ✅ Checkout Event Driven Repo
         uses: actions/checkout@v3
