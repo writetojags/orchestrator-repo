@@ -55,12 +55,17 @@ echo "✈️ Pushing to Heroku apps..."
 
 # Loop through Availability Zones
 for AZ in "SAZ1" "SAZ2" "SAZ3"; do
-  case "$AZ" in
-    "SAZ1") APP_URL="event-driven-prod-app-az1-70f8262ed78b.herokuapp.com" ;;
-    "SAZ2") APP_URL="event-driven-prod-app-az2-60340f04ba9c.herokuapp.com" ;;
-    "SAZ3") APP_URL="event-driven-prod-app-az3-3e8453ccc89f.herokuapp.com" ;;
-    *) echo "Unknown AZ $AZ"; exit 1 ;;
-  esac
+  echo "🔍 Resolving Heroku app for $AZ..."
+
+  APP_NAME=$(heroku apps | grep "event-driven-prod-app-${AZ,,}" | awk '{print $1}' | head -n 1)
+
+  if [[ -z "$APP_NAME" ]]; then
+    echo "❌ No matching Heroku app found for $AZ. Skipping..."
+    continue
+  fi
+
+  APP_URL="${APP_NAME}.herokuapp.com"
+
 
   echo "🚀 Deploying $SERVICE to Heroku app $APP_URL..."
   TARGET_BRANCH=${TARGET_BRANCH:-main}
