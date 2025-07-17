@@ -56,7 +56,7 @@ echo "✈️ Pushing to Heroku apps..."
 
 # Loop through Availability Zones
 # Loop through Availability Zones
-for AZ in "SAZ1" "SAZ2" "SAZ3"; do
+for AZ in "az1" "az2" "az3"; do
   echo "🔍 Resolving Heroku app for $AZ..."
 
   # Dynamically resolve Heroku app name by prefix match
