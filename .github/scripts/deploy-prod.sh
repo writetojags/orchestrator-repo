@@ -83,6 +83,6 @@ else
   echo "⛔ Exiting deployment."
   exit 1
 fi
-
+done
 echo "🎉 All deployments completed successfully!"
 
