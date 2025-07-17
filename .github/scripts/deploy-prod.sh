@@ -71,28 +71,27 @@ for APP in "$AZ1" "$AZ2" "$AZ3"; do
  echo "🔍 Beginning health checks for $APP at $HEALTH_URL..."
 
 for i in {1..5}; do
-  echo "🌀 Health check attempt $i for $APP at $HEALTH_URL..."
-  
-  # Fetch both status and body
+  echo "🔍 Health check attempt $i for $APP at $HEALTH_URL..."
+
   RESPONSE=$(curl -s "$HEALTH_URL")
   HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
 
-  echo "ℹ️  HTTP $HTTP_STATUS - Response: $RESPONSE"
+  echo "📘 HTTP $HTTP_STATUS - Response: $RESPONSE"
 
-  # Check for both 200 OK and body containing "UP"
-  if [[ "$HTTP_STATUS" -eq 200 && "$RESPONSE" == *"UP"* ]]; then
+  if [[ "$HTTP_STATUS" -eq 200 && "$RESPONSE" == *UP* ]]; then
     echo "✅ Health check passed for $APP!"
     break
   else
     echo "❌ Health check failed (HTTP $HTTP_STATUS): Retrying in 10 seconds..."
     sleep 10
   fi
-
-  if [ "$i" -eq 5 ]; then
-    echo "🛑 Final health check failed for $APP at $HEALTH_URL"
-    exit 1
-  fi
 done
+
+if [ "$i" -eq 5 ]; then
+  echo "❌ Final health check failed for $APP at $HEALTH_URL"
+  exit 1
+fi
+
 
 
 
