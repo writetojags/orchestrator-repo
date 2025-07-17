@@ -57,8 +57,7 @@ for APP in "$AZ1" "$AZ2" "$AZ3"; do
   echo "🚀 Deploying $SERVICE to Heroku app $APP..."
   TARGET_BRANCH=${TARGET_BRANCH:-main}
   
-  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git"
-HEAD:${TARGET_BRANCH}
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:${TARGET_BRANCH}
   echo "✅ Finished push for $APP"
 
   # Set health check URL
