@@ -60,7 +60,7 @@ for AZ in "az1" "az2" "az3"; do
   echo "🔍 Resolving Heroku app for $AZ..."
 
   # Dynamically resolve Heroku app name by prefix match
-  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^${APP_PREFIX}${AZ,,}" | head -n 1)
+  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^${APP_PREFIX}${AZ}" | head -n 1)
 
   if [[ -z "$APP_NAME" ]]; then
     echo "❌ No matching Heroku app found for $AZ. Skipping..."
