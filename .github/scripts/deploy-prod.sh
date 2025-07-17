@@ -53,41 +53,49 @@ echo "✈️ Pushing to Heroku apps..."
  # echo "✅ Finished push for $APP"
 #done working code for deployments for all zones remove later ok
 
+# Loop through Availability Zones
 for AZ in "SAZ1" "SAZ2" "SAZ3"; do
   case "$AZ" in
-    "SAZ1") APP="event-driven-prod-app-az1" ;;
-    "SAZ2") APP="event-driven-prod-app-az2" ;;
-    "SAZ3") APP="event-driven-prod-app-az3" ;;
+    "SAZ1") APP_URL="event-driven-prod-app-az1-70f8262ed78b.herokuapp.com" ;;
+    "SAZ2") APP_URL="event-driven-prod-app-az2-60340f04ba9c.herokuapp.com" ;;
+    "SAZ3") APP_URL="event-driven-prod-app-az3-3e8453ccc89f.herokuapp.com" ;;
     *) echo "Unknown AZ $AZ"; exit 1 ;;
   esac
 
-  echo "🚀 Deploying $SERVICE to Heroku app $APP..."
+  echo "🚀 Deploying $SERVICE to Heroku app $APP_URL..."
   TARGET_BRANCH=${TARGET_BRANCH:-main}
 
-  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP}.git" HEAD:${TARGET_BRANCH}
-  echo "✅ Finished push for $APP"
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_URL%%.herokuapp.com}.git" HEAD:$TARGET_BRANCH
+  echo "✅ Finished push for $APP_URL"
 
-  HEALTH_URL="https://${APP}.herokuapp.com${HEALTH_PATH:-/actuator/health}"
+  # Health check
+  HEALTH_PATH=${HEALTH_PATH:-/actuator/health}
+  HEALTH_URL="https://${APP_URL}${HEALTH_PATH}"
+
   echo "⏳ Waiting for service to warm up..."
   sleep 30
-  echo "🔍 Beginning health checks for $APP at $HEALTH_URL..."
+
+  echo "🔍 Beginning health checks for $APP_URL at $HEALTH_URL..."
 
   for i in {1..5}; do
-    echo "🔄 Health check attempt $i for $APP at $HEALTH_URL..."
+    echo "🩺 Health check attempt $i for $APP_URL..."
+
     RESPONSE=$(curl -s "$HEALTH_URL")
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
 
-    echo "📡 HTTP $HTTP_STATUS - Response: $RESPONSE"
+    echo "# HTTP $HTTP_STATUS - Response: $RESPONSE"
 
     if [[ "$HTTP_STATUS" -eq 200 && "$RESPONSE" == *"UP"* ]]; then
-      echo "✅ Health check passed for $APP!"
+      echo "✅ Health check passed for $APP_URL!"
       break
     else
       echo "❌ Health check failed (HTTP $HTTP_STATUS): Retrying in 10 seconds..."
       sleep 10
     fi
   done
+
 done
+
 
 
 
