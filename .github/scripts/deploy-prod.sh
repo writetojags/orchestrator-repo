@@ -57,7 +57,8 @@ echo "✈️ Pushing to Heroku apps..."
 for AZ in "SAZ1" "SAZ2" "SAZ3"; do
   echo "🔍 Resolving Heroku app for $AZ..."
 
-  APP_NAME=$(heroku apps | grep "event-driven-prod-app-${AZ,,}" | awk '{print $1}' | head -n 1)
+  APP_PREFIX="event-driven-prod-app-${AZ,,: -1}"  # extracts 1, 2, 3 from SAZ1, SAZ2...
+  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^$APP_PREFIX" | head -n 1)
 
   if [[ -z "$APP_NAME" ]]; then
     echo "❌ No matching Heroku app found for $AZ. Skipping..."
@@ -65,6 +66,8 @@ for AZ in "SAZ1" "SAZ2" "SAZ3"; do
   fi
 
   APP_URL="${APP_NAME}.herokuapp.com"
+  echo "✅ Found Heroku app for $AZ: $APP_NAME"
+
 
 
   echo "🚀 Deploying $SERVICE to Heroku app $APP_URL..."
