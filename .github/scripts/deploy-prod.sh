@@ -5,6 +5,7 @@ SERVICE=$1
 COMMIT=$2
 TARGET_BRANCH=${3:-main}
 HEALTH_PATH=${HEALTH_PATH:-/actuator/health}
+APP_PREFIX="${SERVICE}-prod-app-"
 
 echo "🌟 Starting deploy-prod.sh for SERVICE=$SERVICE with commit=$COMMIT to branch=$TARGET_BRANCH"
 
@@ -55,36 +56,41 @@ echo "✈️ Pushing to Heroku apps..."
 
 # Loop through Availability Zones
 # Loop through Availability Zones
-for AZ in SAZ1 SAZ2 SAZ3; do
-  APP_PREFIX="${SERVICE}-prod-app-${AZ,,}"  # converts SAZ1 → saz1
-  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^${APP_PREFIX}" | head -n 1)
+for AZ in "SAZ1" "SAZ2" "SAZ3"; do
+  echo "🔍 Resolving Heroku app for $AZ..."
+
+  # Dynamically resolve Heroku app name by prefix match
+  APP_NAME=$(heroku apps | awk '{print $1}' | grep "^${APP_PREFIX}${AZ,,}" | head -n 1)
 
   if [[ -z "$APP_NAME" ]]; then
     echo "❌ No matching Heroku app found for $AZ. Skipping..."
     continue
   fi
 
-  echo "🔍 Resolving Heroku app for $AZ..."
+  APP_URL="${APP_NAME}.herokuapp.com"
   echo "✅ Found Heroku app: $APP_NAME"
 
-  APP_URL="${APP_NAME}.herokuapp.com"
   echo "🚀 Deploying $SERVICE to Heroku app $APP_URL..."
-
-  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git" HEAD:$TARGET_BRANCH
+  git push "https://heroku:${HEROKU_API_KEY}@git.heroku.com/${APP_NAME}.git"
+HEAD:$TARGET_BRANCH
   echo "✅ Finished push for $APP_URL"
 
   # Health check
+  HEALTH_PATH="/actuator/health"
   HEALTH_URL="https://${APP_URL}${HEALTH_PATH}"
+
   echo "⏳ Waiting for service to warm up..."
   sleep 30
 
-  echo "🩺 Beginning health checks for $APP_URL at $HEALTH_URL..."
+  echo "🔎 Beginning health checks for $APP_URL at $HEALTH_URL..."
+
   for i in {1..5}; do
-    echo "🔁 Health check attempt $i..."
+    echo "🩺 Health check attempt $i..."
+
     RESPONSE=$(curl -s "$HEALTH_URL")
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$HEALTH_URL")
 
-    echo "🔎 HTTP $HTTP_STATUS | Response: $RESPONSE"
+    echo "🧾 HTTP $HTTP_STATUS - Response: $RESPONSE"
 
     if [[ "$HTTP_STATUS" -eq 200 && "$RESPONSE" == *"UP"* ]]; then
       echo "✅ Health check passed for $APP_URL"
@@ -94,7 +100,9 @@ for AZ in SAZ1 SAZ2 SAZ3; do
       sleep 10
     fi
   done
+
 done
+
 
 
 
