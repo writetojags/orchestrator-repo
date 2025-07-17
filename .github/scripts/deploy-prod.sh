@@ -55,9 +55,9 @@ echo "✈️ Pushing to Heroku apps..."
 
 for AZ in "SAZ1" "SAZ2" "SAZ3"; do
   case "$AZ" in
-    "SAZ1") APP="event-driven-app-az1" ;;
-    "SAZ2") APP="event-driven-app-az2" ;;
-    "SAZ3") APP="event-driven-app-az3" ;;
+    "SAZ1") APP="event-driven-prod-app-az1" ;;
+    "SAZ2") APP="event-driven-prod-app-az2" ;;
+    "SAZ3") APP="event-driven-prod-app-az3" ;;
     *) echo "Unknown AZ $AZ"; exit 1 ;;
   esac
 
