@@ -5,7 +5,7 @@ SERVICE=$1
 COMMIT=$2
 TARGET_BRANCH=${3:-main}
 HEALTH_PATH=${HEALTH_PATH:-/actuator/health}
-APP_PREFIX="${SERVICE}-prod-app-"
+APP_PREFIX=$(echo "$SERVICE" | tr '_' '-')
 
 echo "🌟 Starting deploy-prod.sh for SERVICE=$SERVICE with commit=$COMMIT to branch=$TARGET_BRANCH"
 
